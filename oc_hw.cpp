@@ -1,30 +1,31 @@
 ﻿#include <iostream>
-#include <thread>
-#include <random>
+#include <omp.h>
 
 using namespace std;
 
-auto gener() {
-	int mat[2][2];
-	for (int i = 0; i < 2; ++i) {
-		for (int j = 0; j < 2; ++j) {
-			mat[i][j] = rand() % 10;
-		}
-	}
-	return mat;
-}
+#define N 3
+#define M 3
+#define K 3
+
+int mat1[N][M] = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+int mat2[M][K] = { {1, 2, 3}, {4, 5, 6}, {7, 8, 9} };
+int result[N][K];
 
 int main() {
-	srand(time(0));
-	int res1[2][2];
-	int res2[2][2];
+#pragma omp parallel for
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < K; j++) {
+            result[i][j] = 0;
+            for (int k = 0; k < M; k++) {
+                result[i][j] += mat1[i][k] * mat2[k][j];
+            }
+        }
+    }
 
-	thread t1([&res1]() { for (int i = 0; i < 2; ++i) {
-		for (int j = 0; j < 2; ++j) {
-			res1[i][j] = mat[i][j];
-		}
-	}
-		});
-	/*thread t2(gener, ref(res2));*/
-	
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < K; j++) {
+            cout << result[i][j] << " ";
+        }
+        cout << endl;
+    }
 }
